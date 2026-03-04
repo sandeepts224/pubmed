@@ -159,10 +159,24 @@ def rerank_label_results(query: str, documents: List[str], top_n: int = 5) -> Li
         
         return reranked
     except Exception as e:
-        # Fallback: return documents with default scores if reranking fails
-        # Log error but don't fail completely
-        import logging
-        logging.warning(f"Reranking failed: {e}. Using original order.")
-        return [{"score": 0.5, "document": doc, "index": i} for i, doc in enumerate(documents[:top_n])]
+        # Check if it's a permission error
+        error_str = str(e)
+        if "PERMISSION_DENIED" in error_str or "not authorized" in error_str.lower():
+            # Permission denied - rerank model not available for this project
+            # Fallback: use original order with similarity-based scores
+            import logging
+            logging.warning(
+                "Cohere Rerank v3.5 not authorized for this Pinecone project. "
+                "Using original order with default scores. "
+                "To enable reranking, contact Pinecone support or check your project settings."
+            )
+            # Return documents in original order with default scores
+            # This allows the system to work without reranking
+            return [{"score": 0.5, "document": doc, "index": i} for i, doc in enumerate(documents[:top_n])]
+        else:
+            # Other error - log and fallback
+            import logging
+            logging.warning(f"Reranking failed: {e}. Using original order.")
+            return [{"score": 0.5, "document": doc, "index": i} for i, doc in enumerate(documents[:top_n])]
 
 
