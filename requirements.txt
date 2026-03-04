@@ -1,0 +1,23 @@
+# FastAPI and web framework
+fastapi>=0.100.0
+uvicorn[standard]>=0.23.0
+
+# Database and ORM
+sqlmodel>=0.0.14
+
+# Data validation and settings
+pydantic>=2.0.0
+pydantic-settings>=2.0.0
+
+# Environment variables
+python-dotenv>=1.0.0
+
+# Vector database and embeddings
+pinecone>=5.0.0
+
+# HTTP client for external APIs (Claude, PubMed)
+httpx>=0.24.0
+
+# Optional: OpenAI for embeddings (if not using Pinecone integrated inference)
+# openai>=1.0.0
+
