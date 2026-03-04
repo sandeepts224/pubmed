@@ -1,6 +1,20 @@
 import { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
-import { Alert as MuiAlert, Box, Button, Chip, CircularProgress, Paper, TextField, Typography } from '@mui/material'
+import { useParams, Link as RouterLink } from 'react-router-dom'
+import {
+  Alert as MuiAlert,
+  Box,
+  Button,
+  Chip,
+  CircularProgress,
+  Paper,
+  TextField,
+  Typography,
+  Divider,
+} from '@mui/material'
+import ArrowBackIcon from '@mui/icons-material/ArrowBack'
+import CheckCircleIcon from '@mui/icons-material/CheckCircle'
+import WatchLaterIcon from '@mui/icons-material/WatchLater'
+import CancelIcon from '@mui/icons-material/Cancel'
 import api from '../api'
 
 type Alert = {
@@ -185,37 +199,65 @@ export default function AlertDetailPage() {
 
   return (
     <Box>
-      <Typography variant="h5" gutterBottom>
-        Alert #{alert.id}{' '}
-        <Chip label={alert.status} color={statusColor(alert.status) as 'success' | 'warning' | 'default' | 'info'} size="small" />
-      </Typography>
+      <Box display="flex" alignItems="center" gap={2} sx={{ mb: 3 }}>
+        <Button
+          component={RouterLink}
+          to="/"
+          startIcon={<ArrowBackIcon />}
+          variant="outlined"
+          size="small"
+          sx={{ borderRadius: 2 }}
+        >
+          Back to Alerts
+        </Button>
+        <Typography variant="h4" sx={{ fontWeight: 700, color: '#1a1a1a', flexGrow: 1 }}>
+          Alert #{alert.id}
+        </Typography>
+        <Chip
+          label={alert.status.replace('_', ' ')}
+          color={statusColor(alert.status) as 'success' | 'warning' | 'default' | 'info'}
+          size="medium"
+          sx={{ fontWeight: 600, fontSize: '0.9rem' }}
+        />
+      </Box>
 
-      <Box display="flex" flexDirection={{ xs: 'column', md: 'row' }} gap={2}>
+      <Box display="flex" flexDirection={{ xs: 'column', md: 'row' }} gap={3}>
         <Box flex={2}>
-          <Paper sx={{ p: 2, mb: 2 }}>
-            <Typography variant="h6" gutterBottom>
-              Paper
+          <Paper elevation={0} sx={{ p: 3, mb: 3, borderRadius: 3, border: '1px solid #e0e0e0' }}>
+            <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, color: '#1a1a1a', mb: 2 }}>
+              Paper Information
             </Typography>
-            <Typography variant="subtitle1">{paper.title}</Typography>
-            <Typography variant="body2" color="text.secondary">
-              {paper.journal} · PMID {paper.pmid} · Query: {paper.query_type}
+            <Divider sx={{ mb: 2 }} />
+            <Typography variant="h6" sx={{ fontWeight: 600, mb: 1.5, color: '#1a1a1a' }}>
+              {paper.title}
             </Typography>
+            <Box display="flex" flexWrap="wrap" gap={1} sx={{ mb: 2 }}>
+              <Chip label={paper.journal} size="small" variant="outlined" />
+              <Chip label={`PMID: ${paper.pmid}`} size="small" variant="outlined" />
+              <Chip label={paper.query_type} size="small" color="primary" />
+            </Box>
             {paper.doi && (
-              <Typography variant="body2" sx={{ mt: 1 }}>
-                DOI: {paper.doi}
+              <Typography variant="body2" sx={{ mb: 2, color: 'text.secondary' }}>
+                <strong>DOI:</strong> {paper.doi}
               </Typography>
             )}
             {paper.abstract && (
-              <Typography variant="body2" sx={{ mt: 2, whiteSpace: 'pre-wrap' }}>
-                {paper.abstract}
-              </Typography>
+              <Box sx={{ mt: 3 }}>
+                <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1, color: '#1a1a1a' }}>
+                  Abstract
+                </Typography>
+                <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap', lineHeight: 1.7, color: 'text.secondary' }}>
+                  {paper.abstract}
+                </Typography>
+              </Box>
             )}
           </Paper>
 
-          <Paper sx={{ p: 2 }}>
-            <Typography variant="h6" gutterBottom>
-              Reviewer decision
+          <Paper elevation={0} sx={{ p: 3, borderRadius: 3, border: '1px solid #e0e0e0' }}>
+            <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, color: '#1a1a1a', mb: 2 }}>
+              Reviewer Decision
             </Typography>
+            <Divider sx={{ mb: 2 }} />
             <TextField
               label="Reviewer note"
               fullWidth
@@ -225,28 +267,34 @@ export default function AlertDetailPage() {
               onChange={(e) => setNote(e.target.value)}
               sx={{ mb: 2 }}
             />
-            <Box display="flex" gap={1}>
+            <Box display="flex" gap={1.5} flexWrap="wrap">
               <Button
                 variant="contained"
                 color="success"
                 disabled={saving}
                 onClick={() => handleDecision('confirmed')}
+                startIcon={<CheckCircleIcon />}
+                sx={{ borderRadius: 2, fontWeight: 600 }}
               >
-                Confirmed signal
+                Confirm Signal
               </Button>
               <Button
                 variant="outlined"
                 color="warning"
                 disabled={saving}
                 onClick={() => handleDecision('watch_list')}
+                startIcon={<WatchLaterIcon />}
+                sx={{ borderRadius: 2, fontWeight: 600 }}
               >
-                Watch list
+                Watch List
               </Button>
               <Button
                 variant="outlined"
-                color="inherit"
+                color="error"
                 disabled={saving}
                 onClick={() => handleDecision('dismissed')}
+                startIcon={<CancelIcon />}
+                sx={{ borderRadius: 2, fontWeight: 600 }}
               >
                 Dismiss
               </Button>
@@ -265,74 +313,82 @@ export default function AlertDetailPage() {
         </Box>
 
         <Box flex={1}>
-          <Paper sx={{ p: 2, mb: 2 }}>
-            <Typography variant="h6" gutterBottom>
-              Extracted data
+          <Paper elevation={0} sx={{ p: 2.5, mb: 2, borderRadius: 3, border: '1px solid #e0e0e0' }}>
+            <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, color: '#1a1a1a', mb: 2 }}>
+              Extracted Data
             </Typography>
-            <Typography variant="body2">
-              <strong>Adverse event:</strong> {extraction.adverse_event || extraction.meddra_term}
-            </Typography>
-            <Typography variant="body2">
-              <strong>Incidence:</strong>{' '}
-              {extraction.incidence_pct != null ? `${extraction.incidence_pct}%` : 'n/a'}
-            </Typography>
-            <Typography variant="body2">
-              <strong>Sample size:</strong> {extraction.sample_size ?? 'n/a'}
-            </Typography>
-            <Typography variant="body2">
-              <strong>Study type:</strong> {extraction.study_type ?? 'n/a'}
-            </Typography>
-            <Typography variant="body2">
-              <strong>Subgroup risk:</strong> {extraction.subgroup_risk ?? 'n/a'}
-            </Typography>
-            <Typography variant="body2">
-              <strong>Combination:</strong> {extraction.combination ?? 'n/a'}
-            </Typography>
-            <Typography variant="body2">
-              <strong>Population:</strong> {extraction.population ?? 'n/a'}
-            </Typography>
-            <Typography variant="body2">
-              <strong>Data source:</strong> {extraction.data_source ?? 'n/a'}
-            </Typography>
-            <Typography variant="body2">
-              <strong>Severity:</strong> {extraction.severity ?? 'n/a'}
-            </Typography>
+            <Divider sx={{ mb: 2 }} />
+            <Box sx={{ '& > *': { mb: 1.5 } }}>
+              <Typography variant="body2">
+                <strong>Adverse event:</strong> {extraction.adverse_event || extraction.meddra_term || 'N/A'}
+              </Typography>
+              <Typography variant="body2">
+                <strong>Incidence:</strong>{' '}
+                {extraction.incidence_pct != null ? `${extraction.incidence_pct}%` : 'N/A'}
+              </Typography>
+              <Typography variant="body2">
+                <strong>Sample size:</strong> {extraction.sample_size ?? 'N/A'}
+              </Typography>
+              <Typography variant="body2">
+                <strong>Study type:</strong> {extraction.study_type ?? 'N/A'}
+              </Typography>
+              <Typography variant="body2">
+                <strong>Subgroup risk:</strong> {extraction.subgroup_risk ?? 'N/A'}
+              </Typography>
+              <Typography variant="body2">
+                <strong>Combination:</strong> {extraction.combination ?? 'N/A'}
+              </Typography>
+              <Typography variant="body2">
+                <strong>Population:</strong> {extraction.population ?? 'N/A'}
+              </Typography>
+              <Typography variant="body2">
+                <strong>Data source:</strong> {extraction.data_source ?? 'N/A'}
+              </Typography>
+              <Typography variant="body2">
+                <strong>Severity:</strong> {extraction.severity ?? 'N/A'}
+              </Typography>
+            </Box>
           </Paper>
 
-          <Paper sx={{ p: 2 }}>
-            <Typography variant="h6" gutterBottom>
-              Score breakdown
+          <Paper elevation={0} sx={{ p: 2.5, borderRadius: 3, border: '1px solid #e0e0e0' }}>
+            <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, color: '#1a1a1a', mb: 2 }}>
+              Score Breakdown
             </Typography>
-            <Typography variant="body2">
-              <strong>Composite score:</strong> {score.composite_score.toFixed(1)}
-            </Typography>
-            <Typography variant="body2">
-              <strong>Novelty:</strong> {score.novelty_score.toFixed(1)}
-            </Typography>
-            <Typography variant="body2">
-              <strong>Incidence delta:</strong> {score.incidence_delta_score.toFixed(1)}
-            </Typography>
-            <Typography variant="body2">
-              <strong>Subpopulation:</strong> {score.subpopulation_score.toFixed(1)}
-            </Typography>
-            <Typography variant="body2">
-              <strong>Temporal:</strong> {score.temporal_score.toFixed(1)}
-            </Typography>
-            <Typography variant="body2">
-              <strong>Combination:</strong> {score.combination_score.toFixed(1)}
-            </Typography>
-            <Typography variant="body2">
-              <strong>Evidence multiplier:</strong> {score.evidence_multiplier.toFixed(2)}
-            </Typography>
+            <Divider sx={{ mb: 2 }} />
+            <Box sx={{ '& > *': { mb: 1.5 } }}>
+              <Typography variant="body2">
+                <strong>Composite score:</strong>{' '}
+                <Chip label={score.composite_score.toFixed(1)} size="small" color="primary" sx={{ ml: 1 }} />
+              </Typography>
+              <Typography variant="body2">
+                <strong>Novelty:</strong> {score.novelty_score.toFixed(1)}
+              </Typography>
+              <Typography variant="body2">
+                <strong>Incidence delta:</strong> {score.incidence_delta_score.toFixed(1)}
+              </Typography>
+              <Typography variant="body2">
+                <strong>Subpopulation:</strong> {score.subpopulation_score.toFixed(1)}
+              </Typography>
+              <Typography variant="body2">
+                <strong>Temporal:</strong> {score.temporal_score.toFixed(1)}
+              </Typography>
+              <Typography variant="body2">
+                <strong>Combination:</strong> {score.combination_score.toFixed(1)}
+              </Typography>
+              <Typography variant="body2">
+                <strong>Evidence multiplier:</strong> {score.evidence_multiplier.toFixed(2)}
+              </Typography>
+            </Box>
           </Paper>
         </Box>
       </Box>
 
       {/* Second Opinion Section */}
-      <Paper sx={{ p: 2, mt: 2 }}>
-        <Typography variant="h6" gutterBottom>
+      <Paper elevation={0} sx={{ p: 3, mt: 3, borderRadius: 3, border: '1px solid #e0e0e0' }}>
+        <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, color: '#1a1a1a', mb: 2 }}>
           Claude Second Opinion & Label Context
         </Typography>
+        <Divider sx={{ mb: 2 }} />
         {loadingSecondOpinion && (
           <Box display="flex" justifyContent="center" py={2}>
             <CircularProgress size={24} />
@@ -348,8 +404,12 @@ export default function AlertDetailPage() {
             <Typography variant="subtitle2" sx={{ mt: 2, mb: 1, fontWeight: 'bold' }}>
               Claude Analysis:
             </Typography>
-            <Paper variant="outlined" sx={{ p: 2, mb: 2, bgcolor: 'grey.50' }}>
-              <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>
+            <Paper
+              elevation={0}
+              variant="outlined"
+              sx={{ p: 2.5, mb: 2, bgcolor: '#f8f9fa', borderRadius: 2, border: '1px solid #e0e0e0' }}
+            >
+              <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap', lineHeight: 1.7 }}>
                 {secondOpinion.claude_explanation}
               </Typography>
             </Paper>
@@ -359,8 +419,9 @@ export default function AlertDetailPage() {
             {secondOpinion.label_chunks.map((chunk, idx) => (
               <Paper
                 key={idx}
+                elevation={0}
                 variant="outlined"
-                sx={{ p: 1.5, mb: 1, bgcolor: 'background.default' }}
+                sx={{ p: 2, mb: 1.5, bgcolor: '#fafbfc', borderRadius: 2, border: '1px solid #e0e0e0' }}
               >
                 <Box display="flex" gap={1} flexWrap="wrap" mb={0.5}>
                   {chunk.section && (

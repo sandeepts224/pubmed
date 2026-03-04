@@ -14,7 +14,15 @@ import {
   TableHead,
   TableRow,
   Typography,
+  Card,
+  CardContent,
+  Grid,
+  IconButton,
 } from '@mui/material'
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
+import ExpandLessIcon from '@mui/icons-material/ExpandLess'
+import ArticleIcon from '@mui/icons-material/Article'
+import AssessmentIcon from '@mui/icons-material/Assessment'
 import api from '../api'
 
 type Paper = {
@@ -190,38 +198,113 @@ export default function PipelineViewPage() {
 
   return (
     <Box>
-      <Typography variant="h5" gutterBottom>
-        Pipeline View (Last 7 Days)
-      </Typography>
-      <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-        All Keytruda papers processed in the last 7 days, including those without alerts.
-      </Typography>
+      <Box sx={{ mb: 4 }}>
+        <Typography variant="h4" gutterBottom sx={{ fontWeight: 700, color: '#1a1a1a' }}>
+          Pipeline View
+        </Typography>
+        <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
+          Comprehensive view of all Keytruda papers processed in the last 7 days, including extraction status, scoring,
+          and alert generation.
+        </Typography>
 
-      <Box display="flex" flexWrap="wrap" gap={1} sx={{ mb: 2 }}>
-        <Chip label={`Total papers: ${data.total}`} size="small" />
-        <Chip label={`With extraction: ${data.with_extraction}`} color="primary" size="small" />
-        <Chip label={`With score: ${data.with_score}`} color="secondary" size="small" />
-        <Chip label={`With alert: ${data.with_alert}`} color="success" size="small" />
+        <Grid container spacing={2} sx={{ mb: 3 }}>
+          <Grid item xs={12} sm={6} md={3}>
+            <Card sx={{ background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)', color: 'white' }}>
+              <CardContent>
+                <Box display="flex" alignItems="center" justifyContent="space-between">
+                  <Box>
+                    <Typography variant="caption" sx={{ opacity: 0.9 }}>
+                      Total Papers
+                    </Typography>
+                    <Typography variant="h4" sx={{ fontWeight: 700, mt: 0.5 }}>
+                      {data.total}
+                    </Typography>
+                  </Box>
+                  <ArticleIcon sx={{ fontSize: 40, opacity: 0.8 }} />
+                </Box>
+              </CardContent>
+            </Card>
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <Card sx={{ background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)', color: 'white' }}>
+              <CardContent>
+                <Box display="flex" alignItems="center" justifyContent="space-between">
+                  <Box>
+                    <Typography variant="caption" sx={{ opacity: 0.9 }}>
+                      With Extraction
+                    </Typography>
+                    <Typography variant="h4" sx={{ fontWeight: 700, mt: 0.5 }}>
+                      {data.with_extraction}
+                    </Typography>
+                  </Box>
+                  <AssessmentIcon sx={{ fontSize: 40, opacity: 0.8 }} />
+                </Box>
+              </CardContent>
+            </Card>
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <Card sx={{ background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)', color: 'white' }}>
+              <CardContent>
+                <Box display="flex" alignItems="center" justifyContent="space-between">
+                  <Box>
+                    <Typography variant="caption" sx={{ opacity: 0.9 }}>
+                      With Score
+                    </Typography>
+                    <Typography variant="h4" sx={{ fontWeight: 700, mt: 0.5 }}>
+                      {data.with_score}
+                    </Typography>
+                  </Box>
+                  <AssessmentIcon sx={{ fontSize: 40, opacity: 0.8 }} />
+                </Box>
+              </CardContent>
+            </Card>
+          </Grid>
+          <Grid item xs={12} sm={6} md={3}>
+            <Card sx={{ background: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)', color: 'white' }}>
+              <CardContent>
+                <Box display="flex" alignItems="center" justifyContent="space-between">
+                  <Box>
+                    <Typography variant="caption" sx={{ opacity: 0.9 }}>
+                      With Alert
+                    </Typography>
+                    <Typography variant="h4" sx={{ fontWeight: 700, mt: 0.5 }}>
+                      {data.with_alert}
+                    </Typography>
+                  </Box>
+                  <AssessmentIcon sx={{ fontSize: 40, opacity: 0.8 }} />
+                </Box>
+              </CardContent>
+            </Card>
+          </Grid>
+        </Grid>
       </Box>
 
-      <Table size="small">
-        <TableHead>
-          <TableRow>
-            <TableCell width={50}>ID</TableCell>
-            <TableCell>Paper</TableCell>
-            <TableCell width={120}>Extraction</TableCell>
-            <TableCell width={120}>Score</TableCell>
-            <TableCell width={120}>Alert</TableCell>
-            <TableCell width={100}>Actions</TableCell>
-          </TableRow>
-        </TableHead>
+      <Paper elevation={0} sx={{ borderRadius: 3, overflow: 'hidden' }}>
+        <Table>
+          <TableHead>
+            <TableRow sx={{ backgroundColor: '#f8f9fa' }}>
+              <TableCell sx={{ fontWeight: 600, width: 50 }}>ID</TableCell>
+              <TableCell sx={{ fontWeight: 600 }}>Paper</TableCell>
+              <TableCell sx={{ fontWeight: 600, width: 120 }}>Extraction</TableCell>
+              <TableCell sx={{ fontWeight: 600, width: 120 }}>Score</TableCell>
+              <TableCell sx={{ fontWeight: 600, width: 120 }}>Alert</TableCell>
+              <TableCell sx={{ fontWeight: 600, width: 100 }}>Actions</TableCell>
+            </TableRow>
+          </TableHead>
         <TableBody>
           {data.papers.map((item) => {
             const { paper, extraction, score, alert } = item
             const isExpanded = expandedRows.has(paper.id)
             return (
               <>
-                <TableRow key={paper.id} hover>
+                <TableRow
+                  key={paper.id}
+                  hover
+                  sx={{
+                    '&:hover': { backgroundColor: '#f8f9fa' },
+                    '&:last-child td': { border: 0 },
+                  }}
+                >
                   <TableCell>{paper.id}</TableCell>
                   <TableCell>
                     <Typography variant="body2" fontWeight="bold">
@@ -260,18 +343,25 @@ export default function PipelineViewPage() {
                     )}
                   </TableCell>
                   <TableCell>
-                    <Button size="small" onClick={() => toggleRow(paper.id, score?.id ?? null)}>
-                      {isExpanded ? 'Hide' : 'Details'}
-                    </Button>
+                    <IconButton
+                      size="small"
+                      onClick={() => toggleRow(paper.id, score?.id ?? null)}
+                      sx={{
+                        color: 'primary.main',
+                        '&:hover': { backgroundColor: 'primary.light', color: 'white' },
+                      }}
+                    >
+                      {isExpanded ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+                    </IconButton>
                   </TableCell>
                 </TableRow>
                 <TableRow>
-                  <TableCell colSpan={6} sx={{ py: 0, border: 0 }}>
+                  <TableCell colSpan={6} sx={{ py: 0, border: 0, backgroundColor: '#fafbfc' }}>
                     <Collapse in={isExpanded} timeout="auto" unmountOnExit>
-                      <Box sx={{ p: 2, bgcolor: 'grey.50' }}>
+                      <Box sx={{ p: 3 }}>
                         {extraction && (
-                          <Paper sx={{ p: 2, mb: 2 }}>
-                            <Typography variant="h6" gutterBottom>
+                          <Paper elevation={0} sx={{ p: 2.5, mb: 2, borderRadius: 2, border: '1px solid #e0e0e0' }}>
+                            <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, color: '#1a1a1a' }}>
                               Extracted Data
                             </Typography>
                             <Typography variant="body2">
@@ -297,8 +387,8 @@ export default function PipelineViewPage() {
                         )}
 
                         {score && (
-                          <Paper sx={{ p: 2, mb: 2 }}>
-                            <Typography variant="h6" gutterBottom>
+                          <Paper elevation={0} sx={{ p: 2.5, mb: 2, borderRadius: 2, border: '1px solid #e0e0e0' }}>
+                            <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, color: '#1a1a1a' }}>
                               Score Breakdown
                             </Typography>
                             <Typography variant="body2">
@@ -326,8 +416,8 @@ export default function PipelineViewPage() {
                         )}
 
                         {score && (
-                          <Paper sx={{ p: 2, mb: 2 }}>
-                            <Typography variant="h6" gutterBottom>
+                          <Paper elevation={0} sx={{ p: 2.5, mb: 2, borderRadius: 2, border: '1px solid #e0e0e0' }}>
+                            <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, color: '#1a1a1a' }}>
                               Claude Second Opinion & Label Context
                             </Typography>
                             {loadingSecondOpinions.has(score.id) ? (
@@ -374,8 +464,8 @@ export default function PipelineViewPage() {
                         )}
 
                         {paper.abstract && (
-                          <Paper sx={{ p: 2 }}>
-                            <Typography variant="h6" gutterBottom>
+                          <Paper elevation={0} sx={{ p: 2.5, borderRadius: 2, border: '1px solid #e0e0e0' }}>
+                            <Typography variant="h6" gutterBottom sx={{ fontWeight: 600, color: '#1a1a1a' }}>
                               Abstract
                             </Typography>
                             <Typography variant="body2" sx={{ whiteSpace: 'pre-wrap' }}>
@@ -392,6 +482,7 @@ export default function PipelineViewPage() {
           })}
         </TableBody>
       </Table>
+      </Paper>
     </Box>
   )
 }
