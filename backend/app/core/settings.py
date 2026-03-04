@@ -16,10 +16,17 @@ class Settings(BaseSettings):
     claude_extraction_model: str = "claude-sonnet-4-6"
     claude_reasoning_model: str = "claude-sonnet-4-6"
     claude_stub: bool = False  # real Claude API by default; set true only for offline stubbing
+    
+    # OpenAI for embeddings
+    openai_api_key: str | None = None
+    embedding_model: str = "text-embedding-3-small"  # 1536 dimensions
+    
+    # Pinecone vector database
     pinecone_api_key: str | None = None
-    pinecone_index: str = "keytruda-label-hybrid"
+    pinecone_index: str = "pubmedembeding"  # Your Pinecone index name
     pinecone_environment: str = "us-east-1"
     pinecone_cloud: str = "aws"
+    pinecone_host: str | None = None  # Optional: direct host URL if needed
 
     # PubMed
     pubmed_email: str | None = None

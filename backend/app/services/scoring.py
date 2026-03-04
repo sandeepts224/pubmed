@@ -8,7 +8,9 @@ from sqlmodel import Session, select
 from backend.app.models.alert import Alert
 from backend.app.models.extraction import Extraction
 from backend.app.models.label import LabelDrugInteraction, LabelEvent, LabelVersion
+from backend.app.models.paper import Paper
 from backend.app.models.score import Score
+from backend.app.services.label_rag import retrieve_label_for_alert
 
 
 ALERT_THRESHOLD = 50.0
@@ -76,6 +78,111 @@ def _label_interactions(session: Session, label_version_id: int) -> set[str]:
     return {_norm(r) for r in rows if r}
 
 
+def _calculate_rag_score(extraction: Extraction, paper: Paper | None = None) -> tuple[float, dict[str, object]]:
+    """
+    Calculate RAG-based score using semantic similarity to label chunks.
+    
+    Uses Pinecone to retrieve relevant label sections and calculates a score based on:
+    - Semantic similarity (distance/similarity scores from Pinecone)
+    - Number of relevant matches
+    - Relevance of matched sections
+    
+    Returns:
+        Tuple of (rag_score, details_dict)
+    """
+    rag_details: dict[str, object] = {}
+    
+    # Build query text from extraction
+    query_parts = []
+    if extraction.adverse_event:
+        query_parts.append(extraction.adverse_event)
+    if extraction.meddra_term and extraction.meddra_term != extraction.adverse_event:
+        query_parts.append(extraction.meddra_term)
+    if extraction.subgroup_risk:
+        query_parts.append(f"subgroup: {extraction.subgroup_risk}")
+    if extraction.combination:
+        query_parts.append(f"combination: {extraction.combination}")
+    
+    if not query_parts:
+        rag_details["skipped"] = True
+        rag_details["reason"] = "no_extraction_data"
+        return 0.0, rag_details
+    
+    query_text = " ".join(query_parts)
+    
+    # Retrieve relevant label chunks using RAG with reranking
+    try:
+        # Use reranking for improved relevance (default: True)
+        matches = retrieve_label_for_alert(query_text, top_k=5, use_rerank=True)
+        
+        if not matches:
+            rag_details["skipped"] = True
+            rag_details["reason"] = "no_rag_matches"
+            return 0.0, rag_details
+        
+        # Calculate RAG score based on reranked scores
+        # Cohere Rerank returns relevance scores (higher = more relevant)
+        # Scores are typically in 0-1 range, but can be higher
+        rerank_scores = []
+        match_types = []
+        
+        for match in matches:
+            # Get reranked relevance score (Cohere Rerank score)
+            score = getattr(match, 'score', 0.0)
+            rerank_scores.append(score)
+            
+            # Track match types for analysis
+            metadata = getattr(match, 'metadata', {}) or {}
+            match_type = metadata.get('type', 'unknown')
+            match_types.append(match_type)
+        
+        # Calculate RAG score based on reranked relevance:
+        # - Cohere Rerank scores: higher = more relevant to query
+        # - High relevance (> 0.8) = well-documented on label = low novelty = low score
+        # - Medium relevance (0.5-0.8) = somewhat related = moderate score
+        # - Low relevance (< 0.5) = not well-documented = high novelty = high score
+        top_relevance = max(rerank_scores) if rerank_scores else 0.0
+        
+        # Convert rerank relevance to novelty score
+        # Rerank scores are typically 0-1, but can be higher for very relevant matches
+        # Normalize to 0-1 range for scoring logic
+        normalized_relevance = min(1.0, top_relevance)
+        
+        if normalized_relevance < 0.3:
+            # Very low relevance - not well-documented on label = high novelty
+            rag_score = 40.0
+        elif normalized_relevance < 0.5:
+            # Low relevance - somewhat novel
+            rag_score = 25.0
+        elif normalized_relevance < 0.7:
+            # Medium relevance - related but different
+            rag_score = 10.0
+        else:
+            # High relevance - well-documented on label = low novelty
+            rag_score = 0.0
+        
+        # Penalty for multiple high-relevance matches (indicates well-documented)
+        high_relevance_matches = sum(1 for s in rerank_scores if s > 0.7)
+        if high_relevance_matches >= 3:
+            # Multiple strong matches suggest this is well-documented, reduce novelty
+            rag_score = max(0.0, rag_score - 10.0)
+        
+        rag_details["top_rerank_score"] = top_relevance
+        rag_details["normalized_relevance"] = normalized_relevance
+        rag_details["num_matches"] = len(matches)
+        rag_details["high_relevance_matches"] = high_relevance_matches
+        rag_details["match_types"] = match_types
+        rag_details["query_text"] = query_text
+        rag_details["used_rerank"] = True
+        
+        return rag_score, rag_details
+        
+    except Exception as e:
+        rag_details["error"] = str(e)
+        rag_details["skipped"] = True
+        return 0.0, rag_details
+
+
 @dataclass(frozen=True)
 class ScoreResult:
     score: Score
@@ -84,6 +191,9 @@ class ScoreResult:
 
 def score_extraction(session: Session, extraction: Extraction, label_version_id: int) -> ScoreResult:
     details: dict[str, object] = {"checks": {}, "label_version_id": label_version_id}
+
+    # Get paper for RAG scoring context
+    paper = session.exec(select(Paper).where(Paper.id == extraction.paper_id)).first()
 
     term = extraction.meddra_term or extraction.adverse_event or ""
     on_label = _norm(term) in _label_terms(session, label_version_id)
@@ -173,6 +283,10 @@ def score_extraction(session: Session, extraction: Extraction, label_version_id:
     else:
         details["checks"]["combination"] = {"skipped": True}
 
+    # Check 6: RAG-based semantic similarity score
+    rag_score, rag_details = _calculate_rag_score(extraction, paper)
+    details["checks"]["rag"] = rag_details
+
     # Evidence multiplier (simple v1)
     mult = 1.0
     st = _norm(extraction.study_type)
@@ -189,7 +303,9 @@ def score_extraction(session: Session, extraction: Extraction, label_version_id:
         elif extraction.sample_size >= 500:
             mult *= 1.2
 
-    base_sum = novelty + incidence_delta + subpop + temporal + combo_score
+    # Combine DB query scores and RAG score
+    # RAG score is already in the same scale (0-50), so we can add it directly
+    base_sum = novelty + incidence_delta + subpop + temporal + combo_score + rag_score
     composite = base_sum * mult
 
     score = Score(
@@ -199,9 +315,10 @@ def score_extraction(session: Session, extraction: Extraction, label_version_id:
         subpopulation_score=subpop,
         temporal_score=temporal,
         combination_score=combo_score,
+        rag_score=rag_score,
         evidence_multiplier=mult,
         composite_score=composite,
-        scoring_version="v1",
+        scoring_version="v2",  # Updated to v2 with RAG scoring
         details_json=json.dumps(details),
     )
     session.add(score)

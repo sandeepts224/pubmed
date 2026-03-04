@@ -17,11 +17,12 @@ class Score(SQLModel, table=True):
     subpopulation_score: float = 0.0
     temporal_score: float = 0.0
     combination_score: float = 0.0
+    rag_score: float = 0.0  # RAG-based semantic similarity score
 
     evidence_multiplier: float = 1.0
     composite_score: float = Field(default=0.0, index=True)
 
-    scoring_version: str = Field(default="v1", index=True)
+    scoring_version: str = Field(default="v2", index=True)  # Updated to v2 with RAG
     details_json: Optional[str] = None
 
     created_at: datetime = Field(default_factory=datetime.utcnow, index=True)

@@ -4,7 +4,7 @@ from typing import Any, Dict, List
 
 from sqlmodel import Session, select
 
-from backend.app.clients.vector import pseudo_embedding, query_label_vectors, upsert_label_vectors
+from backend.app.clients.vector import query_label_vectors, rerank_label_results, upsert_label_vectors
 from backend.app.models.label import LabelEvent, LabelVersion, WarningPrecaution
 
 
@@ -47,11 +47,11 @@ def index_label_into_pinecone(session: Session, drug: str = "pembrolizumab") -> 
 
     for ev in events:
         text = _chunk_text_for_event(ev, lv)
-        vec = pseudo_embedding(text)
+        # With Pinecone integrated inference, pass text directly - Pinecone handles embedding
         vectors.append(
             {
                 "id": f"label-event-{ev.id}",
-                "values": vec,
+                "values": text,  # Pass text directly - Pinecone will embed using configured model
                 "metadata": {
                     "type": "event",
                     "label_version_id": lv.id,
@@ -65,11 +65,11 @@ def index_label_into_pinecone(session: Session, drug: str = "pembrolizumab") -> 
 
     for w in warnings:
         text = _chunk_text_for_warning(w, lv)
-        vec = pseudo_embedding(text)
+        # With Pinecone integrated inference, pass text directly - Pinecone handles embedding
         vectors.append(
             {
                 "id": f"label-warning-{w.id}",
-                "values": vec,
+                "values": text,  # Pass text directly - Pinecone will embed using configured model
                 "metadata": {
                     "type": "warning",
                     "label_version_id": lv.id,
@@ -87,13 +87,82 @@ def index_label_into_pinecone(session: Session, drug: str = "pembrolizumab") -> 
     return {"indexed": len(vectors), "label_version_id": lv.id}
 
 
-def retrieve_label_for_alert(extraction_summary: str, top_k: int = 5) -> List[Dict[str, Any]]:
+def retrieve_label_for_alert(extraction_summary: str, top_k: int = 5, use_rerank: bool = True) -> List[Dict[str, Any]]:
     """
     Given a short text summarizing the alert (e.g. AE name + key details),
     return top-k label chunks from Pinecone with their metadata.
+    
+    Uses Pinecone's integrated inference - passes text directly, Pinecone handles embedding.
+    Optionally uses Cohere Rerank v3.5 for improved relevance.
+    
+    Args:
+        extraction_summary: Query text summarizing the alert
+        top_k: Number of results to return
+        use_rerank: Whether to use Cohere Rerank for improved relevance (default: True)
+    
+    Returns:
+        List of matches with metadata and reranked scores
     """
-    q_vec = pseudo_embedding(extraction_summary)
-    res = query_label_vectors(q_vec, top_k=top_k)
-    return res.matches if hasattr(res, "matches") else []
+    # First, retrieve more candidates than needed (for reranking)
+    initial_k = top_k * 3 if use_rerank else top_k  # Get 3x candidates for reranking
+    
+    # Pass text directly - Pinecone will generate embedding using configured model
+    res = query_label_vectors(extraction_summary, top_k=initial_k)
+    matches = res.matches if hasattr(res, "matches") else []
+    
+    if not matches:
+        return []
+    
+    # If not using rerank, return top_k results directly
+    if not use_rerank:
+        return matches[:top_k]
+    
+    # Extract document texts and metadata for reranking
+    documents = []
+    match_metadata = []
+    for i, match in enumerate(matches):
+        meta = getattr(match, 'metadata', {}) or {}
+        doc_text = meta.get('text', '')
+        if doc_text:
+            documents.append(doc_text)
+            match_metadata.append({
+                'match': match,
+                'metadata': meta,
+                'original_index': i,  # Track original position
+            })
+    
+    if not documents:
+        return matches[:top_k]
+    
+    # Rerank using Cohere Rerank v3.5 through Pinecone
+    reranked_results = rerank_label_results(extraction_summary, documents, top_n=top_k)
+    
+    # Map reranked results back to original matches with updated scores
+    reranked_matches = []
+    for reranked in reranked_results:
+        doc_index = reranked.get('index')
+        # Cohere Rerank returns the index in the original documents list
+        if doc_index is not None and doc_index < len(match_metadata):
+            # Get the original match and metadata
+            original_data = match_metadata[doc_index]
+            original_match = original_data['match']
+            
+            # Create a match-like object with reranked score
+            # Use a simple class to mimic Pinecone's match structure
+            class RerankedMatch:
+                def __init__(self, score, metadata, id_val):
+                    self.score = score
+                    self.metadata = metadata
+                    self.id = id_val
+            
+            reranked_match = RerankedMatch(
+                score=reranked['score'],
+                metadata=original_data['metadata'],
+                id_val=getattr(original_match, 'id', None),
+            )
+            reranked_matches.append(reranked_match)
+    
+    # Return reranked matches, or fallback to original if reranking failed
+    return reranked_matches if reranked_matches else matches[:top_k]
 
 
