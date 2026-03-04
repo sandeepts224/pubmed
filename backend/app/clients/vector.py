@@ -51,11 +51,11 @@ def query_label_vectors(query_text_or_vector: str | List[float], top_k: int = 5,
     """
     Query Pinecone index using text or pre-computed vector.
     
-    With Pinecone's integrated inference, you can pass text directly and Pinecone
-    will generate embeddings automatically using the configured model.
+    For text queries, generates embeddings first (Pinecone standard API requires vectors).
+    If Pinecone integrated inference is available, it may support text directly.
     
     Args:
-        query_text_or_vector: Text string (if using integrated inference) or embedding vector (List[float])
+        query_text_or_vector: Text string or embedding vector (List[float])
         top_k: Number of results to return
         filter_meta: Optional metadata filter (e.g., {"type": "event"})
     
@@ -65,17 +65,33 @@ def query_label_vectors(query_text_or_vector: str | List[float], top_k: int = 5,
     index = get_pinecone_index()
     filter_dict = filter_meta if filter_meta else None
     
-    # If it's a string, use Pinecone's integrated inference
-    # If it's a list, use as vector directly
+    # If it's a string, generate embedding first
+    # Note: Pinecone standard API requires vectors, not text
     if isinstance(query_text_or_vector, str):
-        # Pinecone integrated inference - pass text directly
-        # Note: Check Pinecone SDK docs for exact parameter name (might be 'data' or 'text')
-        return index.query(
-            data=query_text_or_vector,
-            top_k=top_k,
-            filter=filter_dict,
-            include_metadata=True
-        )
+        # Try Pinecone integrated inference first (if supported)
+        try:
+            # Some Pinecone setups might support text queries directly
+            # Try different parameter names
+            try:
+                return index.query(
+                    data=query_text_or_vector,
+                    top_k=top_k,
+                    filter=filter_dict,
+                    include_metadata=True
+                )
+            except (TypeError, AttributeError):
+                # If 'data' doesn't work, try generating embedding
+                from backend.app.clients.embeddings import embed_text
+                query_vector = embed_text(query_text_or_vector)
+                return index.query(
+                    vector=query_vector,
+                    top_k=top_k,
+                    filter=filter_dict,
+                    include_metadata=True
+                )
+        except ImportError:
+            # If embeddings client not available, fall back to vector query
+            raise RuntimeError("Cannot query with text: embeddings client not available")
     else:
         # Pre-computed vector
         return index.query(
