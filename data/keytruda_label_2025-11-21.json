@@ -1,0 +1,348 @@
+{
+  "drug": "pembrolizumab",
+  "brand_name": "KEYTRUDA",
+  "manufacturer": "Merck Sharp & Dohme LLC",
+  "label_revision_date": "2025-11-21",
+  "label_source": "DailyMed (setid: 9333c79b-d487-4538-a9f0-71b91a02b287)",
+  "baseline_population": "2799 patients receiving KEYTRUDA monotherapy",
+  "immune_mediated_adverse_events": [
+    {
+      "adverse_event": "Pneumonitis",
+      "meddra_preferred_term": "Pneumonitis",
+      "meddra_hlt": "Lower respiratory tract inflammatory and immunologic conditions",
+      "incidence_pct": 3.4,
+      "n_cases": 94,
+      "n_total": 2799,
+      "fatal_pct": 0.1,
+      "grade4_pct": 0.3,
+      "grade3_pct": 0.9,
+      "grade2_pct": 1.3,
+      "median_onset_months": 3.5,
+      "onset_range": "10 days to 16.2 months",
+      "required_systemic_corticosteroids_pct": 67,
+      "led_to_discontinuation_pct": 1.3,
+      "resolved_pct": 59,
+      "recurrence_after_rechallenge_pct": 23,
+      "special_populations": ["higher incidence with prior thoracic radiation"],
+      "adjuvant_nsclc_incidence_pct": 7.0,
+      "label_section": "5.1",
+      "on_label": true
+    },
+    {
+      "adverse_event": "Colitis",
+      "meddra_preferred_term": "Colitis",
+      "meddra_hlt": "Colitis (excl infective)",
+      "incidence_pct": 1.7,
+      "n_cases": 48,
+      "n_total": 2799,
+      "fatal_pct": null,
+      "grade4_pct": 0.1,
+      "grade3_pct": 1.1,
+      "grade2_pct": 0.4,
+      "median_onset_months": 3.5,
+      "onset_range": "10 days to 16.2 months",
+      "required_systemic_corticosteroids_pct": 69,
+      "led_to_discontinuation_pct": 0.5,
+      "resolved_pct": 85,
+      "special_populations": [],
+      "label_section": "5.1",
+      "on_label": true
+    },
+    {
+      "adverse_event": "Hepatitis",
+      "meddra_preferred_term": "Hepatitis",
+      "meddra_hlt": "Hepatocellular damage and hepatitis NEC",
+      "incidence_pct": 0.7,
+      "n_cases": null,
+      "n_total": 2799,
+      "fatal_pct": null,
+      "grade4_pct": null,
+      "grade3_pct": null,
+      "grade2_pct": null,
+      "median_onset_months": 3.7,
+      "onset_range": null,
+      "required_systemic_corticosteroids_pct": null,
+      "led_to_discontinuation_pct": 0.7,
+      "resolved_pct": null,
+      "special_populations": [],
+      "label_section": "5.1",
+      "on_label": true
+    },
+    {
+      "adverse_event": "Nephritis",
+      "meddra_preferred_term": "Nephritis",
+      "meddra_hlt": "Renal disorders NEC",
+      "incidence_pct": 0.3,
+      "n_cases": 9,
+      "n_total": 2799,
+      "fatal_pct": null,
+      "grade4_pct": 0.1,
+      "grade3_pct": 0.1,
+      "grade2_pct": 0.1,
+      "median_onset_months": 5.1,
+      "onset_range": "12 days to 12.8 months",
+      "required_systemic_corticosteroids_pct": 89,
+      "led_to_discontinuation_pct": 0.1,
+      "resolved_pct": 56,
+      "special_populations": [],
+      "combination_note": "1.7% in combination with pemetrexed and platinum",
+      "label_section": "5.1",
+      "on_label": true
+    },
+    {
+      "adverse_event": "Hypophysitis",
+      "meddra_preferred_term": "Hypophysitis",
+      "meddra_hlt": "Anterior pituitary disorders",
+      "incidence_pct": 0.6,
+      "n_cases": 17,
+      "n_total": 2799,
+      "fatal_pct": null,
+      "grade4_pct": 0.1,
+      "grade3_pct": 0.3,
+      "grade2_pct": 0.2,
+      "median_onset_months": 3.7,
+      "onset_range": "1 day to 11.9 months",
+      "required_systemic_corticosteroids_pct": 94,
+      "led_to_discontinuation_pct": 0.1,
+      "resolved_pct": null,
+      "special_populations": [],
+      "label_section": "5.1",
+      "on_label": true
+    },
+    {
+      "adverse_event": "Hypothyroidism",
+      "meddra_preferred_term": "Hypothyroidism",
+      "meddra_hlt": "Thyroid disorders",
+      "incidence_pct": 12.0,
+      "n_cases": null,
+      "n_total": null,
+      "fatal_pct": null,
+      "grade4_pct": null,
+      "grade3_pct": null,
+      "grade2_pct": null,
+      "median_onset_months": null,
+      "onset_range": null,
+      "special_populations": [],
+      "label_section": "5.1",
+      "on_label": true
+    },
+    {
+      "adverse_event": "Hyperthyroidism",
+      "meddra_preferred_term": "Hyperthyroidism",
+      "meddra_hlt": "Thyroid disorders",
+      "incidence_pct": 3.4,
+      "n_cases": null,
+      "n_total": null,
+      "special_populations": [],
+      "label_section": "5.1",
+      "on_label": true
+    },
+    {
+      "adverse_event": "Adrenal Insufficiency",
+      "meddra_preferred_term": "Adrenal insufficiency",
+      "meddra_hlt": "Adrenal gland disorders",
+      "incidence_pct": 0.8,
+      "n_cases": null,
+      "n_total": null,
+      "special_populations": [],
+      "label_section": "5.1",
+      "on_label": true
+    },
+    {
+      "adverse_event": "Type 1 Diabetes Mellitus",
+      "meddra_preferred_term": "Type 1 diabetes mellitus",
+      "meddra_hlt": "Diabetes mellitus",
+      "incidence_pct": null,
+      "note": "Can occur including diabetic ketoacidosis",
+      "special_populations": [],
+      "label_section": "5.1",
+      "on_label": true
+    },
+    {
+      "adverse_event": "Myocarditis",
+      "meddra_preferred_term": "Myocarditis",
+      "meddra_hlt": "Myocardial disorders NEC",
+      "incidence_pct": 0.1,
+      "incidence_note": "<0.1%",
+      "fatal_pct": null,
+      "special_populations": [],
+      "label_section": "5.1",
+      "on_label": true
+    },
+    {
+      "adverse_event": "Infusion-Related Reactions",
+      "meddra_preferred_term": "Infusion related reaction",
+      "meddra_hlt": "Infusion site reactions",
+      "incidence_pct": 0.1,
+      "incidence_note": "Severe/life-threatening in 3 (0.1%) of 2117 patients",
+      "special_populations": [],
+      "label_section": "5.2",
+      "on_label": true
+    }
+  ],
+  "rare_adverse_events_less_than_1pct": [
+    {
+      "adverse_event": "Arthritis",
+      "meddra_preferred_term": "Arthritis",
+      "incidence_pct": 1.6,
+      "source_trials": "Trials 1, 2, and 6 (1567 melanoma patients)",
+      "on_label": true
+    },
+    {
+      "adverse_event": "Exfoliative Dermatitis",
+      "meddra_preferred_term": "Dermatitis exfoliative",
+      "incidence_pct": null,
+      "incidence_note": "<1%",
+      "on_label": true
+    },
+    {
+      "adverse_event": "Bullous Pemphigoid",
+      "meddra_preferred_term": "Pemphigoid",
+      "incidence_pct": null,
+      "incidence_note": "<1%",
+      "on_label": true
+    },
+    {
+      "adverse_event": "Uveitis",
+      "meddra_preferred_term": "Uveitis",
+      "incidence_pct": null,
+      "incidence_note": "<1%",
+      "on_label": true
+    },
+    {
+      "adverse_event": "Myositis",
+      "meddra_preferred_term": "Myositis",
+      "incidence_pct": null,
+      "incidence_note": "<1%",
+      "on_label": true
+    },
+    {
+      "adverse_event": "Guillain-Barré Syndrome",
+      "meddra_preferred_term": "Guillain-Barre syndrome",
+      "incidence_pct": null,
+      "incidence_note": "<1%",
+      "on_label": true
+    },
+    {
+      "adverse_event": "Myasthenia Gravis",
+      "meddra_preferred_term": "Myasthenia gravis",
+      "incidence_pct": null,
+      "incidence_note": "<1%",
+      "on_label": true
+    },
+    {
+      "adverse_event": "Vasculitis",
+      "meddra_preferred_term": "Vasculitis",
+      "incidence_pct": null,
+      "incidence_note": "<1%",
+      "on_label": true
+    },
+    {
+      "adverse_event": "Pancreatitis",
+      "meddra_preferred_term": "Pancreatitis",
+      "incidence_pct": null,
+      "incidence_note": "<1%",
+      "on_label": true
+    },
+    {
+      "adverse_event": "Hemolytic Anemia",
+      "meddra_preferred_term": "Haemolytic anaemia",
+      "incidence_pct": null,
+      "incidence_note": "<1%",
+      "on_label": true
+    },
+    {
+      "adverse_event": "Partial Seizures",
+      "meddra_preferred_term": "Partial seizures",
+      "incidence_pct": null,
+      "incidence_note": "<1%",
+      "on_label": true
+    }
+  ],
+  "common_adverse_reactions_ge_20pct_monotherapy": [
+    "fatigue",
+    "musculoskeletal pain",
+    "rash",
+    "diarrhea",
+    "pyrexia",
+    "cough",
+    "decreased appetite",
+    "pruritus",
+    "dyspnea",
+    "constipation",
+    "pain",
+    "abdominal pain",
+    "nausea",
+    "hypothyroidism"
+  ],
+  "adverse_reactions_leading_to_discontinuation": [
+    { "event": "colitis", "pct": 1.4 },
+    { "event": "autoimmune hepatitis", "pct": 0.7 },
+    { "event": "allergic reaction", "pct": 0.4 },
+    { "event": "polyneuropathy", "pct": 0.4 },
+    { "event": "cardiac failure", "pct": 0.4 }
+  ],
+  "warnings_and_precautions": [
+    {
+      "section": "5.1",
+      "title": "Severe and Fatal Immune-Mediated Adverse Reactions",
+      "summary": "Can occur in any organ system or tissue, can affect more than one body system simultaneously, can occur at any time after starting treatment or after discontinuation"
+    },
+    {
+      "section": "5.2",
+      "title": "Infusion-Related Reactions",
+      "summary": "Interrupt, slow rate, or permanently discontinue based on severity"
+    },
+    {
+      "section": "5.3",
+      "title": "Complications of Allogeneic HSCT",
+      "summary": "Fatal and serious complications in patients receiving allo-HSCT before or after PD-1/PD-L1 blocking antibody"
+    },
+    {
+      "section": "5.4",
+      "title": "Increased Mortality in Multiple Myeloma",
+      "summary": "Not recommended with thalidomide analogue plus dexamethasone outside clinical trials"
+    },
+    {
+      "section": "5.5",
+      "title": "Embryo-Fetal Toxicity",
+      "summary": "Can cause fetal harm"
+    }
+  ],
+  "drug_interactions": {
+    "noted_combinations_on_label": [
+      "pemetrexed + platinum chemotherapy",
+      "carboplatin + paclitaxel/paclitaxel protein-bound",
+      "axitinib",
+      "lenvatinib",
+      "enfortumab vedotin",
+      "trastuzumab + fluoropyrimidine + platinum",
+      "fluoropyrimidine + platinum",
+      "gemcitabine + cisplatin",
+      "platinum + fluorouracil",
+      "chemotherapy + bevacizumab",
+      "chemoradiotherapy",
+      "carboplatin + paclitaxel (endometrial)"
+    ],
+    "contraindicated_combinations": [
+      "thalidomide analogue + dexamethasone (multiple myeloma)"
+    ]
+  },
+  "metadata": {
+    "data_extracted_date": "2026-02-19",
+    "sources": [
+      "DailyMed: https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=9333c79b-d487-4538-a9f0-71b91a02b287",
+      "Drugs.com: https://www.drugs.com/pro/keytruda.html",
+      "Merck HCP: https://www.keytrudahcp.com/",
+      "FDA accessdata: https://www.accessdata.fda.gov/drugsatfda_docs/label/2020/125514s066lbl.pdf"
+    ],
+    "notes": [
+      "Some granular grade/onset data is from the 2020 label version - verify against latest",
+      "MedDRA terms are approximate - map with official MedDRA subscription for production use",
+      "Null values indicate data not explicitly available in the label text retrieved",
+      "Incidence data for monotherapy is based on n=2799 unless otherwise noted"
+    ]
+  }
+}
+
+
